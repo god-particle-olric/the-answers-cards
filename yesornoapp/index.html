@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Answers</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212; 
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+            height: 100vh;
+            margin: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #615f5f 0%, #121212 100%);
+        }
+
+        .deck-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            margin-top: 10vh; 
+        }
+
+        .card {
+            width: 160px; 
+            height: 240px;
+            position: absolute;
+            transform-origin: center 150%; 
+            transform: rotate(var(--angle)); /*bunu kullandım çünkü hover efektinde de aynı açıyı kullanarak kartların birbirine karışmasını engelleyecek */
+            transition: transform 0.4s ease-out, top 0.6s, left 0.6s, width 0.6s, height 0.6s, z-index 0s;
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .card:hover:not(.active) {
+            transform: rotate(var(--angle)) translateY(-30px) !important;
+            z-index: 100 !important; 
+        }
+
+        .card.active {
+            bottom: auto;
+            top: 50%;
+            left: 50%;
+            width: 260px;
+            height: 380px;
+            transform: translate(-50%, -50%) rotate(0deg) !important;
+            z-index: 200 !important;
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card.flipped {
+            transform: translate(-50%, -50%) rotateY(180deg) !important;
+            -webkit-transform: translate(-50%, -50%) rotateY(180deg) !important;
+        }
+
+        .deck-container.has-active .card:not(.active) {
+            opacity: 0.2;
+            pointer-events: none;
+            filter: blur(3px);
+            transform: rotate(var(--angle)) translateY(50px); 
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 12px;
+            box-shadow: -3px 0px 18px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+    .card-back-design {
+            background: radial-gradient(circle at center, #350606, 0%, #4a0a24 60%, #2a0312 100%);
+            color: white;
+            border: 1px solid #012f47; 
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 10px;
+        }
+
+        .maze-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            opacity: 0; 
+            transition: opacity 0.5s ease 0.5s;
+        }
+        
+        .spiral-symbol {
+            font-size: 4rem;
+            color: rgba(255, 255, 255, 0.75);
+            user-select: none; 
+        }
+
+        .card.active .card-back-design .title,
+        .card.active .card-back-design .subtitle,
+        .card.active .card-back-design .maze-container {
+            opacity: 1;
+        }
+
+        .card-back-design .title,
+        .card-back-design .subtitle {
+            opacity: 0; 
+            transition: opacity 0.5s ease 0.5s; 
+        }
+
+        .card-front-design {
+            background-color: #f4f4f4;
+            color: #121212;
+            transform: rotateY(180deg);
+            -webkit-transform: rotateY(180deg);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.55rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        .answer-text {
+            font-weight: bold;
+            font-size: clamp(0.7rem, 4vw, 1.1rem);
+            letter-spacing: 1px;
+            margin: 0;
+            padding: 0 5px;
+            line-height: 1.4;
+        }
+        
+        .front-flex {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ask-prompt {
+            position: absolute;
+            top: 8vh; 
+            left: 50%;
+            transform: translateX(-50%); 
+            font-size: 2.2rem;
+            color: rgba(255, 255, 255, 0.4); 
+            letter-spacing: 4px;
+            font-weight: 300;
+            font-family: 'Cormorant Garamond', serif;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ask-prompt">ask:</div>
+    <div class="deck-container" id="deck"></div>
+<script>
+        const answers = [
+            "VERY SOON",
+            "YES BUT DON'T FORCE IT",
+            "DRAW OUTSIDE THE LINES",
+            "ABSOLUTELY NOT",
+            "TRUST YOUR INSTINCTS",
+            "UNEXPECTEDLY YES",
+            "THIS TOO SHALL PASS",
+            "WHAT IF YOU FLY?",
+            "DON'T BELIEVE EVERYTHING YOU THINK",
+            "RELAX, KIDDO. EVERYTHING HAPPENS FOR A REASON, IT'S OKAY IF YOU DON'T KNOW THE REASON YET",
+            "THERE IS A LIGHT AT THE END OF THE TUNNEL",
+            "NOT THE RIGHT TIME",
+            "YES, BUT BE PATIENT",
+            "EMBRACE THE CHANGE",
+            "NO ACTION IS ALSO AN ANSWER",
+            "SOMETHING BETTER IS COMING",
+            "LEAVE THE PAST WHERE IT BELONGS",
+            "WAKE UP",
+            "DON'T LOSE THIS MOMENT SEARCHING FOR ANOTHER",
+            "ASK AGAIN LATER",
+            "A NEW DOOR WILL OPEN",
+            "FIND THE PATTERN",
+            "slow down, you crazy child",
+            "FOCUS ON YOURSELF, ANSWERS WILL COME",
+            "GOOD THINGS COME TO THOSE WHO BELIEVE, BETTER THINGS COME TO THOSE WHO ARE PATIENT AND THE BEST THINGS COME TO THOSE WHO DON'T GIVE UP",
+            "YESTERDAY YOU SAID TOMORROW",
+            "SIT WITH YOURSELF, THEN DECIDE",
+            "THIS IS THE END <br> (OF THE BEGINNING)",
+            "SEE THE BIGGER PICTURE",
+            "YOU'LL NEVER KNOW IF YOU NEVER GO",
+            "STOP WATERING DEAD PLANTS",
+            "RELAX",
+            "YOU ARE EXACTLY WHERE YOU NEED TO BE"
+        ];
+
+        const deck = document.getElementById('deck');
+        const totalCards = 33;
+        let isAnimating = false;
+
+        function initDeck() {
+            const shuffledAnswers = answers.sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < totalCards; i++) {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                
+                const angle = -50 + (100 / (totalCards - 1)) * i;
+                
+                card.style.setProperty('--angle', `${angle}deg`);
+                card.style.zIndex = i;
+                
+                card.addEventListener('click', (event) => handleCardClick(event, card));
+
+                card.innerHTML = `
+                    <div class="card-face card-back-design">
+                        <div class="title-container"><div class="title">THE<br>ANSWERS</div></div>
+                        
+                        <div class="maze-container">
+                            <span class="spiral-symbol">𖦹</span>
+                        </div>
+                        
+                        <div class="subtitle">JUST SO YOU KNOW IT</div>
+                    </div>
+                    <div class="card-face card-front-design">
+                        <div class="front-flex">
+                            <p class="answer-text">${shuffledAnswers[i]}</p>
+                        </div>
+                        <div class="subtitle" style="color: #666;">JUST SO YOU KNOW IT</div>
+                    </div>
+                `;
+
+                deck.appendChild(card);
+            }
+        }
+
+        function handleCardClick(event, clickedCard) {
+            event.stopPropagation(); 
+
+            if (isAnimating) return;
+
+            const isActive = clickedCard.classList.contains('active');
+
+            if (!isActive) {
+                // kart desteden seçildiğinde sadece ortaya gelecek, dönmeyecek
+                isAnimating = true;
+                deck.classList.add('has-active'); 
+                clickedCard.classList.add('active'); 
+
+               setTimeout(() => {
+                    isAnimating = false;
+                }, 800);
+
+            } else {
+                clickedCard.classList.toggle('flipped');
+            }
+        }
+
+        document.addEventListener('click', (event) => {
+            const activeCard = document.querySelector('.card.active');
+            
+            // eğer ortada seçili bir kart varsa ve tıklanan yer kartın kendisi değilse, kartı kapat ve desteye geri gönder
+            if (activeCard && !event.target.closest('.card')) {
+                if (isAnimating) return;
+                isAnimating = true;
+                
+                // kartın yüzü açıksa önce onu ters çevirecek yani kartı kapatacak, sonra desteye geri gönderecek. Eğer kart zaten kapalıysa direkt desteye geri gönderecek
+                if (activeCard.classList.contains('flipped')) {
+                    activeCard.classList.remove('flipped');
+                    
+                    setTimeout(() => {
+                        activeCard.classList.remove('active'); 
+                        deck.classList.remove('has-active'); 
+                        
+                        setTimeout(() => {
+                            isAnimating = false;
+                        }, 600);
+                    }, 400); 
+
+                } else {
+                    // kart zaten kapalıysa beklemeden direkt desteye yollayacak
+                    activeCard.classList.remove('active'); 
+                    deck.classList.remove('has-active'); 
+                    
+                    setTimeout(() => {
+                        isAnimating = false;
+                    }, 600);
+                }
+            }
+        });
+
+        window.onload = initDeck;
+    </script>
+</body>
+</html>
