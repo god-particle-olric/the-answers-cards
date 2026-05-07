@@ -1,3 +1,9 @@
+
+<img width="749" height="1035" alt="Screenshot 2026-05-07 at 12 23 18 PM" src="https://github.com/user-attachments/assets/d977520e-e8fb-4bb9-b349-372f46dd9f23" />
+<img width="749" height="1035" alt="Screenshot 2026-05-07 at 12 23 11 PM" src="https://github.com/user-attachments/assets/7d044a13-9609-498c-b117-d9fcae34e178" />
+<img width="1470" height="956" alt="Screenshot 2026-05-07 at 12 23 09 PM" src="https://github.com/user-attachments/assets/3377e3df-79fb-4fca-a2f8-cb1e4e85ac21" />
+<img width="705" height="991" alt="Screenshot 2026-05-07 at 12 23 00 PM" src="https://github.com/user-attachments/assets/cbd3a652-f9cf-452f-9631-ab0eba58832f" />
+
 # 𖦹 THE ANSWERS
 
 **"The Answers"** is a minimalist, digital interpretation of traditional oracle decks. Moving beyond a simple "Yes/No" application, this project focuses on the intersection of synchronicity, intuition, and the non-linear nature of clarity.
